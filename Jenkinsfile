@@ -17,7 +17,7 @@ pipeline {
         stage('Build and Run Application') {
             steps {
                 script {
-                    sh 'docker-compose up -d --build'
+                    bat 'docker-compose up -d --build'
                 }
             }
         }
@@ -25,9 +25,9 @@ pipeline {
         stage('Run Tests and Add Ports') {
             steps {
                 script {
-                    sh '''
-                        docker run -d -p 8777:5000 -v $(pwd)/dummy_Scores.txt:/app/Scores.txt --name scores_test_app scores_flask
-                        sleep 10
+                    bat '''
+                        docker run -d -p 8777:5000 -v %cd%\\dummy_Scores.txt:/app/Scores.txt --name scores_test_app scores_flask
+                        timeout /t 10
                         python e2e.py
                         docker stop scores_test_app
                         docker rm scores_test_app
@@ -39,7 +39,7 @@ pipeline {
         stage('Finalize') {
             steps {
                 script {
-                    sh 'docker-compose down'
+                    bat 'docker-compose down'
                     docker.withRegistry('', "${DOCKER_REGISTRY_CREDENTIALS}") {
                         dockerImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
                         dockerImage.push()
