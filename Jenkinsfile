@@ -40,9 +40,11 @@ pipeline {
             steps {
                 script {
                     bat 'docker-compose down'
-                    docker.withRegistry('', "${DOCKER_REGISTRY_CREDENTIALS}") {
-                        dockerImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                        dockerImage.push()
+                    script {
+                        def dockerImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                        docker.withRegistry('', "${DOCKER_REGISTRY_CREDENTIALS}") {
+                            dockerImage.push()
+                        }
                     }
                 }
             }
